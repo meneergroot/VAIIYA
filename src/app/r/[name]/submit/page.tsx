@@ -4,11 +4,12 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 
-interface SubmitPageProps {
-  params: {
+type SubmitPageProps = {
+  params: Promise<{
     name: string;
-  };
-}
+  }>;
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+};
 
 export default function SubmitPage({ params }: SubmitPageProps) {
   const router = useRouter();
@@ -28,6 +29,7 @@ export default function SubmitPage({ params }: SubmitPageProps) {
     const isAnonymous = formData.get("isAnonymous") === "true";
 
     try {
+      const resolvedParams = await params;
       const response = await fetch("/api/posts", {
         method: "POST",
         headers: {
@@ -36,7 +38,7 @@ export default function SubmitPage({ params }: SubmitPageProps) {
         body: JSON.stringify({
           title,
           content,
-          communityName: params.name,
+          communityName: resolvedParams.name,
           isAnonymous,
         }),
       });
@@ -47,7 +49,7 @@ export default function SubmitPage({ params }: SubmitPageProps) {
       }
 
       const data = await response.json();
-      router.push(`/r/${params.name}/post/${data.post.id}`);
+      router.push(`/r/${resolvedParams.name}/post/${data.post.id}`);
     } catch (error) {
       if (error instanceof Error) {
         setError(error.message);

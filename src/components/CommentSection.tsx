@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { useSession } from "next-auth/react";
-import { formatDistanceToNow } from "date-fns";
 import VoteButtons from "./VoteButtons";
 
 interface Comment {
@@ -10,11 +9,14 @@ interface Comment {
   content: string;
   createdAt: Date;
   author: {
-    name: string;
-  };
+    name: string | null;
+  } | null;
   votes: {
     value: number;
   }[];
+  _count: {
+    votes: number;
+  };
 }
 
 interface CommentSectionProps {
@@ -105,10 +107,10 @@ export default function CommentSection({
                 </div>
                 <div className="flex-1">
                   <div className="flex items-center text-sm text-gray-500 mb-2">
-                    <span>u/{comment.author.name}</span>
+                    <span>u/{comment.author?.name}</span>
                     <span className="mx-1">•</span>
                     <span>
-                      {formatDistanceToNow(new Date(comment.createdAt))} ago
+                      {new Date(comment.createdAt).toLocaleString()}
                     </span>
                   </div>
                   <p className="text-gray-700">{comment.content}</p>

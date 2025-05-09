@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { formatDistanceToNow } from "date-fns";
 import VoteButtons from "./VoteButtons";
 
 interface PostCardProps {
@@ -51,7 +50,7 @@ export default function PostCard({ post }: PostCardProps) {
             <span className="mx-1">•</span>
             <span>Posted by u/{post.author.name}</span>
             <span className="mx-1">•</span>
-            <span>{formatDistanceToNow(new Date(post.createdAt))} ago</span>
+            <span>{new Date(post.createdAt).toLocaleString()}</span>
           </div>
           <Link href={`/r/${post.community.name}/comments/${post.id}`}>
             <h2 className="text-xl font-semibold mb-2 hover:underline">

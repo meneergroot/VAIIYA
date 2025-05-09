@@ -3,47 +3,59 @@ import { authOptions } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { formatDistanceToNow } from "date-fns";
 import CommentSection from "@/components/CommentSection";
+import type { Post, Community } from "@/generated/prisma";
 
-interface PostPageProps {
-  params: {
+type PostPageProps = {
+  params: Promise<{
     name: string;
     id: string;
-  };
-}
+  }>;
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+};
 
-export default async function PostPage({ params }: PostPageProps) {
+export default async function PostPage({ params, searchParams }: PostPageProps) {
+  const resolvedParams = await params;
+  const resolvedSearchParams = await searchParams;
   const session = await getServerSession(authOptions);
   const post = await db.post.findUnique({
     where: {
-      id: params.id,
+      id: resolvedParams.id,
     },
     include: {
       author: true,
-      community: true,
+      community: {
+        include: {
+          _count: {
+            select: {
+              members: true,
+              posts: true,
+            },
+          },
+        },
+      },
       comments: {
         include: {
           author: true,
+          votes: true,
           _count: {
             select: {
               votes: true,
             },
           },
         },
-        orderBy: {
-          createdAt: "desc",
-        },
       },
+      votes: true,
       _count: {
         select: {
           votes: true,
+          comments: true,
         },
       },
     },
   });
 
-  if (!post || post.community.name !== params.name) {
+  if (!post || post.community.name !== resolvedParams.name) {
     notFound();
   }
 
@@ -60,9 +72,7 @@ export default async function PostPage({ params }: PostPageProps) {
               <span className="mx-2">•</span>
               <span>
                 Posted by {post.author?.name || "Anonymous"}{" "}
-                {formatDistanceToNow(new Date(post.createdAt), {
-                  addSuffix: true,
-                })}
+                {new Date(post.createdAt).toLocaleString()}
               </span>
             </div>
             <h1 className="text-2xl font-bold mb-4">{post.title}</h1>
@@ -74,8 +84,7 @@ export default async function PostPage({ params }: PostPageProps) {
             <h2 className="text-xl font-bold mb-6">Comments</h2>
             <CommentSection
               postId={post.id}
-              comments={post.comments}
-              session={session}
+              initialComments={post.comments}
             />
           </div>
         </div>

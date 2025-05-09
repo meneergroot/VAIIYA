@@ -2,6 +2,12 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { db } from "@/lib/db";
 import Link from "next/link";
+import type { Post, Community } from "@/generated/prisma";
+
+type PostWithDetails = Post & {
+  author: { name: string | null } | null;
+  community: Community;
+};
 
 export default async function Home() {
   const session = await getServerSession(authOptions);
@@ -30,7 +36,7 @@ export default async function Home() {
         <div className="md:col-span-2">
           <h1 className="text-2xl font-bold mb-6">Recent Posts</h1>
           <div className="space-y-4">
-            {posts.map((post) => (
+            {posts.map((post: PostWithDetails) => (
               <div
                 key={post.id}
                 className="bg-white rounded-lg shadow p-4 hover:shadow-md transition-shadow"
@@ -57,7 +63,7 @@ export default async function Home() {
           <div className="bg-white rounded-lg shadow p-4">
             <h2 className="text-xl font-bold mb-4">Popular Communities</h2>
             <div className="space-y-2">
-              {communities.map((community) => (
+              {communities.map((community: Community) => (
                 <Link
                   key={community.id}
                   href={`/r/${community.name}`}

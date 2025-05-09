@@ -1,0 +1,16 @@
+{
+  "/_not-found/page": "/_not-found",
+  "/api/comments/route": "/api/comments",
+  "/api/communities/route": "/api/communities",
+  "/api/auth/register/route": "/api/auth/register",
+  "/api/votes/route": "/api/votes",
+  "/api/posts/route": "/api/posts",
+  "/favicon.ico/route": "/favicon.ico",
+  "/page": "/",
+  "/r/[name]/page": "/r/[name]",
+  "/r/[name]/post/[id]/page": "/r/[name]/post/[id]",
+  "/login/page": "/login",
+  "/r/[name]/submit/page": "/r/[name]/submit",
+  "/register/page": "/register",
+  "/r/create/page": "/r/create"
+}

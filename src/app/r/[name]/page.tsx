@@ -3,20 +3,53 @@ import { authOptions } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { formatDistanceToNow } from "date-fns";
+import { Metadata } from "next";
+import type { Post, Community } from "@/generated/prisma";
 
 type Props = {
-  params: {
+  params: Promise<{
     name: string;
-  };
-  searchParams: { [key: string]: string | string[] | undefined };
+  }>;
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 };
 
-export default async function CommunityPage({ params }: Props) {
+type PostWithDetails = Post & {
+  author: { name: string | null } | null;
+  community: Community;
+  _count: {
+    comments: number;
+    votes: number;
+  };
+};
+
+export async function generateMetadata({ params, searchParams }: Props): Promise<Metadata> {
+  const resolvedParams = await params;
+  const resolvedSearchParams = await searchParams;
+  const community = await db.community.findUnique({
+    where: {
+      name: resolvedParams.name,
+    },
+  });
+
+  if (!community) {
+    return {
+      title: 'Community Not Found',
+    };
+  }
+
+  return {
+    title: `r/${community.name}`,
+    description: community.description || `Welcome to r/${community.name}`,
+  };
+}
+
+export default async function CommunityPage({ params, searchParams }: Props) {
+  const resolvedParams = await params;
+  const resolvedSearchParams = await searchParams;
   const session = await getServerSession(authOptions);
   const community = await db.community.findUnique({
     where: {
-      name: params.name,
+      name: resolvedParams.name,
     },
     include: {
       _count: {
@@ -68,7 +101,7 @@ export default async function CommunityPage({ params }: Props) {
           )}
 
           <div className="space-y-4">
-            {posts.map((post) => (
+            {posts.map((post: PostWithDetails) => (
               <div
                 key={post.id}
                 className="bg-white rounded-lg shadow p-4 hover:shadow-md transition-shadow"
@@ -81,9 +114,7 @@ export default async function CommunityPage({ params }: Props) {
                   <span>Posted by {post.author?.name || "Anonymous"}</span>
                   <span className="mx-2">•</span>
                   <span>
-                    {formatDistanceToNow(new Date(post.createdAt), {
-                      addSuffix: true,
-                    })}
+                    {new Date(post.createdAt).toLocaleString()}
                   </span>
                   <span className="mx-2">•</span>
                   <span>{post._count.comments} comments</span>

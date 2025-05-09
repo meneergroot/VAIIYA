@@ -1,0 +1,16 @@
+{
+  "/_not-found/page": "app/_not-found/page.js",
+  "/api/comments/route": "app/api/comments/route.js",
+  "/api/communities/route": "app/api/communities/route.js",
+  "/api/auth/register/route": "app/api/auth/register/route.js",
+  "/api/votes/route": "app/api/votes/route.js",
+  "/api/posts/route": "app/api/posts/route.js",
+  "/favicon.ico/route": "app/favicon.ico/route.js",
+  "/page": "app/page.js",
+  "/r/[name]/page": "app/r/[name]/page.js",
+  "/r/[name]/post/[id]/page": "app/r/[name]/post/[id]/page.js",
+  "/login/page": "app/login/page.js",
+  "/r/[name]/submit/page": "app/r/[name]/submit/page.js",
+  "/register/page": "app/register/page.js",
+  "/r/create/page": "app/r/create/page.js"
+}
