@@ -5,13 +5,14 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { formatDistanceToNow } from "date-fns";
 
-interface CommunityPageProps {
+type Props = {
   params: {
     name: string;
   };
-}
+  searchParams: { [key: string]: string | string[] | undefined };
+};
 
-export default async function CommunityPage({ params }: CommunityPageProps) {
+export default async function CommunityPage({ params }: Props) {
   const session = await getServerSession(authOptions);
   const community = await db.community.findUnique({
     where: {
